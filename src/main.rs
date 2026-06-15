@@ -36,7 +36,34 @@ impl App {
     }
 
     fn handle_events(&mut self) -> io::Result<()> {
-        todo!()
+        match event::read()? {
+            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                self.handle_key_events(key_event)
+            }
+            _ => {}
+        };
+        Ok(())
+    }
+
+    fn handle_key_events(&mut self, key_event: KeyEvent) {
+        match key_event.code {
+            KeyCode::Char('q') => self.exit(),
+            KeyCode::Left => self.decrement_counter(),
+            KeyCode::Right => self.increment_counter(),
+            _ => {}
+        }
+    }
+
+    fn exit(&mut self) {
+        self.exit = true;
+    }
+
+    fn increment_counter(&mut self) {
+        self.counter += 1;
+    }
+
+    fn decrement_counter(&mut self) {
+        self.counter -= 1;
     }
 }
 
@@ -57,7 +84,7 @@ impl Widget for &App {
                 .border_set(border::THICK);
         
         let counter_text = Text::from(vec![Line::from(vec![
-            "Value".into(),
+            "Value: ".into(),
             self.counter.to_string().yellow(),
         ])]);
 
@@ -67,6 +94,26 @@ impl Widget for &App {
             .render(area, buf);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -99,4 +146,32 @@ mod tests {
 
         assert_eq!(buf, expected);
     }
+
+    #[test]
+    fn handle_key_event() {
+        let mut app = App::default();
+        app.handle_key_events(KeyCode::Right.into());
+        assert_eq!(app.counter, 1);
+
+        app.handle_key_events(KeyCode::Left.into());
+        assert_eq!(app.counter, 0);
+
+        let mut app = App::default();
+        app.handle_key_events(KeyCode::Char('q').into());
+        assert!(app.exit);
+    }
 }
+
+
+
+
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use crossterm::event::{KeyEventKind, KeyModifiers, KeyCode};
+
+//     // -- snip --
+
+
+// }
